@@ -1,0 +1,194 @@
+{
+	"name": "consult",
+	"displayName": "Consult",
+	"description": "",
+	"version": "0.0.1",
+	"publisher": "hyesun",
+	"repository": {
+		"url": "https://github.com/sunhs/consult.code"
+	},
+	"engines": {
+		"vscode": "^1.91.0"
+	},
+	"categories": [
+		"Other"
+	],
+	"activationEvents": [
+		"*"
+	],
+	"main": "./out/extension.js",
+	"contributes": {
+		"commands": [
+			{
+				"command": "consult.showFileBrowser",
+				"title": "Consult: Show File Browser"
+			},
+			{
+				"command": "consult.addProject",
+				"title": "Consult: Add Project"
+			},
+			{
+				"command": "consult.openProject",
+				"title": "Consult: Open Project"
+			},
+			{
+				"command": "consult.findFileFromAllProjects",
+				"title": "Consult: Find File From All Projects"
+			},
+			{
+				"command": "consult.findFileFromWSProjects",
+				"title": "Consult: Find File From Workspace Projects"
+			},
+			{
+				"command": "consult.findFileFromCurrentProject",
+				"title": "Consult: Find File From Current Project"
+			},
+			{
+				"command": "consult.deleteWSProject",
+				"title": "Consult: Delete Workspace Project"
+			},
+			{
+				"command": "consult.editProjectList",
+				"title": "Consult: Edit Project List"
+			}
+		],
+		"configuration": [
+			{
+				"title": "Consult",
+				"properties": {
+					"consult.filterGlobPatterns": {
+						"type": "array",
+						"default": [
+							"**/.git",
+							"**/.svn",
+							"**/.hg",
+							"**/.DS_Store",
+							"**/*.pyc",
+							"**/node_modules",
+							"**/out",
+							"**/build",
+							"**/.cache",
+							"**/target",
+							"**/*-lock.json"
+						],
+						"description": "glob patterns to filter files"
+					},
+					"consult.projectConfFiles": {
+						"type": "array",
+						"default": [
+							".git",
+							".svn",
+							".hg",
+							".projectile",
+							".vscode",
+							"CMakeLists.txt",
+							"Makefile",
+							"setup.py"
+						],
+						"description": "files indicating that this is a project directory"
+					},
+					"consult.projectDotIgnoreFiles": {
+						"type": "array",
+						"default": [
+							".gitignore"
+						],
+						"description": "files to extend `filterGlobPatterns` in a project"
+					},
+					"consult.excludeAsProject": {
+						"type": "array",
+						"default": [],
+						"description": "directories that should NOT be considered a project"
+					}
+				}
+			}
+		],
+		"keybindings": [
+			{
+				"key": "shift+alt+p f",
+				"command": "consult.showFileBrowser"
+			},
+			{
+				"key": "backspace",
+				"command": "consult.goUpDir",
+				"when": "inConsultFileBrowser && consultFileBrowserEmpty"
+			},
+			{
+				"key": "ctrl+h",
+				"command": "consult.toggleHidden",
+				"when": "inConsultFileBrowser"
+			},
+			{
+				"key": "ctrl+f",
+				"command": "consult.toggleFilter",
+				"when": "inConsultFileBrowser && !inConsultProjMgr"
+			},
+			{
+				"key": "shift+`",
+				"command": "consult.goToHome",
+				"when": "inConsultFileBrowser && consultFileBrowserEmpty"
+			},
+			{
+				"key": "/",
+				"command": "consult.goToRoot",
+				"when": "inConsultFileBrowser && consultFileBrowserEmpty"
+			},
+			{
+				"key": "shift+alt+p a",
+				"command": "consult.addProject"
+			},
+			{
+				"key": "shift+alt+p o",
+				"command": "consult.openProject"
+			},
+			{
+				"key": "shift+alt+p p",
+				"command": "consult.findFileFromAllProjects"
+			},
+			{
+				"key": "shift+alt+p w",
+				"command": "consult.findFileFromWSProjects"
+			},
+			{
+				"key": "shift+alt+p c",
+				"command": "consult.findFileFromCurrentProject"
+			},
+			{
+				"key": "shift+alt+p d",
+				"command": "consult.deleteWSProject"
+			},
+			{
+				"key": "ctrl+j",
+				"command": "consult.confirmAddProject",
+				"when": "inConsultFileBrowser && inConsultProjMgr"
+			},
+			{
+				"key": "shift+alt+p e",
+				"command": "consult.editProjectList"
+			}
+		]
+	},
+	"scripts": {
+		"vscode:prepublish": "npm run compile",
+		"compile": "tsc -p ./",
+		"watch": "tsc -watch -p ./",
+		"pretest": "npm run compile && npm run lint",
+		"lint": "eslint src --ext ts",
+		"test": "node ./out/test/runTest.js"
+	},
+	"devDependencies": {
+		"@types/glob": "^7.1.3",
+		"@types/micromatch": "^4.0.1",
+		"@types/mocha": "^8.2.2",
+		"@types/node": "14.x",
+		"@types/vscode": "^1.57.0",
+		"@typescript-eslint/eslint-plugin": "^4.26.0",
+		"@typescript-eslint/parser": "^4.26.0",
+		"eslint": "^7.27.0",
+		"typescript": "^4.3.2",
+		"vscode-test": "^1.5.2"
+	},
+	"dependencies": {
+		"micromatch": "^4.0.4",
+		"ts-md5": "^1.2.9"
+	}
+}
