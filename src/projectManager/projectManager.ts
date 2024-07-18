@@ -224,10 +224,9 @@ export class ProjectManager extends Consult<ProjectItem | ProjectFileItem> {
 
 export function genAllProjectItems(this: ProjectManager) {
     this.quickPick!.title = Messages.selectProject;
-    let items = this.projects.values().map(
+    return this.projects.values().map(
         (v, _) => new ProjectItem(v)
     );
-    return items;
 }
 
 export function genWSProjectItems(this: ProjectManager) {
@@ -239,19 +238,31 @@ export function genWSProjectItems(this: ProjectManager) {
 }
 
 
+export function onAcceptOpenProject(this: ProjectManager) {
+    let selected = this.quickPick!.selectedItems[0] as ProjectItem;
+    selected.intoWorkspace();
+    this.projects.set(selected.label, selected.absProjectRoot);
+    this.saveProjects();
+    this.quickPick!.hide();
+}
+
+
 export function onAcceptSearchProject(this: ProjectManager) {
     this.update({
         itemGenerator: genProjectFileItemsFromSelectedProject,
         itemSelectors: [],
         onAcceptItems: [
-            async function () {
-                let selected = this.quickPick!.selectedItems[0] as ProjectFileItem;
-                let filePath = selected.absPath;
-                commands.executeCommand("vscode.open", Uri.file(filePath));
-                this.quickPick!.hide();
-            }
+            onAcceptOpenProjectFile
         ]
     });
+}
+
+
+export function onAcceptOpenProjectFile(this: ProjectManager) {
+    let selected = this.quickPick!.selectedItems[0] as ProjectFileItem;
+    let filePath = selected.absPath;
+    commands.executeCommand("vscode.open", Uri.file(filePath));
+    this.quickPick!.hide();
 }
 
 

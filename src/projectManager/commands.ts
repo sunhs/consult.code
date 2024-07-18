@@ -3,8 +3,8 @@ import { commands, Uri, window, workspace } from "vscode";
 import { fileBrowser } from "../fileBrowser/commands";
 import * as fbDefs from "../fileBrowser/fileBrowser";
 import { EnumContext, setContext } from "../utils/context";
-import { ProjectFileItem, ProjectItem } from "./item";
-import { genAllProjectItems, genProjectFileItemsFromProjectItem, genWSProjectItems, Messages, onAcceptDeleteWSProject, onAcceptSearchProject, ProjectManager } from "./projectManager";
+import { ProjectItem } from "./item";
+import { genAllProjectItems, genProjectFileItemsFromProjectItem, genWSProjectItems, Messages, onAcceptDeleteWSProject, onAcceptOpenProject, onAcceptOpenProjectFile, onAcceptSearchProject, ProjectManager } from "./projectManager";
 
 
 export const projectManager = new ProjectManager();
@@ -55,13 +55,7 @@ export function openProject() {
         itemGenerator: genAllProjectItems,
         itemSelectors: [],
         onAcceptItems: [
-            function (this: ProjectManager) {
-                let selected = this.quickPick!.selectedItems[0] as ProjectItem;
-                selected.intoWorkspace();
-                this.projects.set(selected.label, selected.absProjectRoot);
-                this.saveProjects();
-                this.quickPick!.hide();
-            }
+            onAcceptOpenProject
         ],
         onHide: [
             () => {
@@ -149,12 +143,7 @@ export async function findFileFromCurrentProject() {
             },
             itemSelectors: [],
             onAcceptItems: [
-                async function () {
-                    let selected = this.quickPick!.selectedItems[0] as ProjectFileItem;
-                    let filePath = selected.absPath;
-                    commands.executeCommand("vscode.open", Uri.file(filePath));
-                    projectManager.quickPick!.hide();
-                }
+                onAcceptOpenProjectFile
             ],
             onHide: [
                 () => {
