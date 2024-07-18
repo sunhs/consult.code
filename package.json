@@ -188,6 +188,7 @@
 		"vscode-test": "^1.5.2"
 	},
 	"dependencies": {
+		"fast-glob": "^3.3.2",
 		"micromatch": "^4.0.4",
 		"ts-md5": "^1.2.9"
 	}

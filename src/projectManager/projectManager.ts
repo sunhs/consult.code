@@ -2,7 +2,7 @@ import * as fs from "fs";
 import * as OS from "os";
 import * as PathLib from "path";
 import { Md5 } from "ts-md5";
-import { commands, RelativePattern, Uri, window, workspace } from "vscode";
+import { commands, Uri, window, workspace } from "vscode";
 import { Consult } from "../consult";
 import { ConfigFileRootDir, getConfigExcludeAsProject, getConfigFilterGlobPatterns, getConfigProjectDotIgnoreFiles } from "../utils/conf";
 import { LruMap } from "../utils/datastructs";
@@ -64,7 +64,7 @@ export class ProjectManager extends Consult<ProjectItem | ProjectFileItem> {
     }
 
 
-    buildExcludeGlobPattern(projectRoot: string): RelativePattern {
+    buildExcludeGlobPattern(projectRoot: string) {
         let extendedPatterns: string[] = [];
         getConfigProjectDotIgnoreFiles().forEach(
             (ignoreFile) => {
@@ -85,9 +85,9 @@ export class ProjectManager extends Consult<ProjectItem | ProjectFileItem> {
         let patternSet: Set<string> = new Set<string>(
             getConfigFilterGlobPatterns().concat(extendedPatterns)
         );
-        return new RelativePattern(
-            projectRoot, `{${Array.from(patternSet).join(",")}}`
-        );
+
+        // `projectRoot` already contains a trailing /
+        return `${projectRoot}{${Array.from(patternSet).join(",")}}`
     }
 
     registerListener() {

@@ -187,7 +187,7 @@ export function confirmAddProject() {
         return;
     }
     let dir = fileBrowser.quickPick!.activeItems[0].absPath!;
-    new ProjectItem(dir).intoWorkspace();
+    // new ProjectItem(dir).intoWorkspace();
     projectManager.projects.set(PathLib.basename(dir), dir);
     projectManager.saveProjects();
     window.showInformationMessage(Messages.projectAdded);

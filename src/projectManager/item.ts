@@ -1,7 +1,8 @@
+import * as fg from "fast-glob";
 import * as fs from "fs";
 import * as OS from "os";
 import * as PathLib from "path";
-import { QuickPickItem, RelativePattern, Uri, window, workspace } from "vscode";
+import { QuickPickItem, Uri, window, workspace } from "vscode";
 import { FixSizedMap, WeightedLruCache } from "../utils/datastructs";
 
 
@@ -74,31 +75,20 @@ export class ProjectItem implements QuickPickItem {
         this.absProjectRoot = projectRoot;
     }
 
-    async getFileItems(excludeGlobPattern: RelativePattern): Promise<ProjectFileItem[] | undefined> {
-        let status = this.intoWorkspace();
+    async getFileItems(excludeGlobPattern: string) {
+        // `this.absProjectRoot` already contains a trailing /
+        let includeGlobPattern = `${this.absProjectRoot}**`;
 
-        if (!status) {
-            return undefined;
-        }
-
-        let includeGlobPattern = new RelativePattern(this.absProjectRoot, "**");
-        return workspace.findFiles(includeGlobPattern, excludeGlobPattern).then(
-            /*
-             * Weird thing.
-             * When this is the first project added to the workspace, `uris` will be empty.
-             */
-            (uris) => {
-                if (uris.length === 0) {
-                    // this.dispose();
+        return await fg(includeGlobPattern, { ignore: [excludeGlobPattern], onlyFiles: true }).then(
+            (filepaths) => {
+                if (filepaths.length === 0) {
                     return undefined;
                 }
 
                 let fileItems: ProjectFileItem[] = [];
 
-                uris.forEach(
-                    (uri) => {
-                        let filePath = uri.path;
-
+                filepaths.forEach(
+                    (filePath) => {
                         let document = window.activeTextEditor?.document;
                         if (document && document.uri.path === filePath) {
                             return;
