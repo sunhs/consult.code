@@ -115,7 +115,7 @@
 			{
 				"key": "ctrl+h",
 				"command": "consult.toggleHidden",
-				"when": "inConsultFileBrowser"
+				"when": "inConsultFileBrowser && !inConsultProjMgr"
 			},
 			{
 				"key": "ctrl+f",

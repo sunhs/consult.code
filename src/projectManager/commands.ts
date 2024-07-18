@@ -36,7 +36,7 @@ export function addProject() {
             () => {
                 setContext(new Map([
                     [EnumContext.inConsultFileBrowser, false],
-                    [EnumContext.consultFileBrowserEmpty, false],
+                    [EnumContext.consultFileBrowserEmpty, true],
                     [EnumContext.inConsultProjMgr, false]
                 ]));
             }
@@ -145,7 +145,7 @@ export async function findFileFromCurrentProject() {
     } else {
         projectManager.createQuickPick({
             itemGenerator: async function () {
-                return await genProjectFileItemsFromProjectItem.call(projectManager, projectItem);
+                return await genProjectFileItemsFromProjectItem.call(projectManager, projectItem!);
             },
             itemSelectors: [],
             onAcceptItems: [

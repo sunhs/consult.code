@@ -24,7 +24,7 @@ export async function genItemsForCurDir(this: FileBrowser) {
 
     if (!(PathLib.isAbsolute(this.curDir) && await fsutils.isDir(this.curDir))) {
         window.showErrorMessage(`${this.curDir} is not an absolute path to a directory`);
-        this.reset();
+        this.quickPick!.hide();
     }
 
     this.quickPick!.title = this.curDir;
@@ -141,7 +141,7 @@ export function OnAcceptItem(this: FileBrowser) {
                 this.quickPick!.value = "";
             } else {
                 commands.executeCommand("vscode.open", Uri.file(acceptedPath));
-                this.reset();
+                this.quickPick!.hide();
             }
         }
     );

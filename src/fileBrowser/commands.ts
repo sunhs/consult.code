@@ -27,6 +27,14 @@ export function showFileBrowser() {
         ],
         onAcceptItems: [
             OnAcceptItem
+        ],
+        onHide: [
+            () => {
+                setContext(new Map([
+                    [EnumContext.inConsultFileBrowser, false],
+                    [EnumContext.consultFileBrowserEmpty, true],
+                ]));
+            }
         ]
     });
 }
