@@ -65,8 +65,10 @@ export function updateRecentHistoryLog(projectName: string, filePath: string) {
 
 
 export class ProjectItem implements QuickPickItem {
-    description: string;
     label: string;
+    description: string;
+    alwaysShow = true;
+
     absProjectRoot: string;
 
     constructor(projectRoot: string) {
@@ -154,8 +156,10 @@ export class ProjectItem implements QuickPickItem {
 
 
 export class ProjectFileItem implements QuickPickItem {
-    description: string;
     label: string;
+    description: string;
+    alwaysShow = true;
+
     absPath: string;
     projectRoots: Set<string> = new Set<string>();  // indicating which projects have this file
 

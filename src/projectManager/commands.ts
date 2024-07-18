@@ -4,7 +4,7 @@ import { fileBrowser } from "../fileBrowser/commands";
 import * as fbDefs from "../fileBrowser/fileBrowser";
 import { EnumContext, setContext } from "../utils/context";
 import { ProjectItem } from "./item";
-import { genAllProjectItems, genProjectFileItemsFromProjectItem, genWSProjectItems, Messages, onAcceptDeleteWSProject, onAcceptOpenProject, onAcceptOpenProjectFile, onAcceptSearchProject, ProjectManager } from "./projectManager";
+import { genAllProjectItems, genProjectFileItemsFromProjectItem, genWSProjectItems, Messages, onAcceptDeleteWSProject, onAcceptOpenProject, onAcceptOpenProjectFile, onAcceptSearchProject, onChangeValue, ProjectManager } from "./projectManager";
 
 
 export const projectManager = new ProjectManager();
@@ -54,6 +54,9 @@ export function openProject() {
     projectManager.createQuickPick({
         itemGenerator: genAllProjectItems,
         itemSelectors: [],
+        onChangeValue: [
+            onChangeValue
+        ],
         onAcceptItems: [
             onAcceptOpenProject
         ],
@@ -77,6 +80,9 @@ export function findFileFromAllProjects() {
     projectManager.createQuickPick({
         itemGenerator: genAllProjectItems,
         itemSelectors: [],
+        onChangeValue: [
+            onChangeValue
+        ],
         onAcceptItems: [
             onAcceptSearchProject
         ],
@@ -100,6 +106,9 @@ export function findFileFromWSProjects() {
     projectManager.createQuickPick({
         itemGenerator: genWSProjectItems,
         itemSelectors: [],
+        onChangeValue: [
+            onChangeValue
+        ],
         onAcceptItems: [
             onAcceptSearchProject
         ],
@@ -142,6 +151,9 @@ export async function findFileFromCurrentProject() {
                 return await genProjectFileItemsFromProjectItem.call(projectManager, projectItem!);
             },
             itemSelectors: [],
+            onChangeValue: [
+                onChangeValue
+            ],
             onAcceptItems: [
                 onAcceptOpenProjectFile
             ],
@@ -169,6 +181,9 @@ export function deleteWSProject() {
     projectManager.createQuickPick({
         itemGenerator: genWSProjectItems,
         itemSelectors: [],
+        onChangeValue: [
+            onChangeValue
+        ],
         onAcceptItems: [
             onAcceptDeleteWSProject
         ],

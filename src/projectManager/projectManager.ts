@@ -248,9 +248,13 @@ export function onAcceptOpenProject(this: ProjectManager) {
 
 
 export function onAcceptSearchProject(this: ProjectManager) {
+    this.quickPick!.value = "";
     this.update({
         itemGenerator: genProjectFileItemsFromSelectedProject,
         itemSelectors: [],
+        onChangeValue: [
+            onChangeValue
+        ],
         onAcceptItems: [
             onAcceptOpenProjectFile
         ]
@@ -288,4 +292,30 @@ export function onAcceptDeleteWSProject(this: ProjectManager) {
     let projectItem = this.quickPick!.selectedItems[0] as ProjectItem;
     projectItem.removeFromWorkspace();
     this.quickPick!.hide();
+}
+
+
+export function onChangeValue(this: ProjectManager, oldValue: string, newValue: string) {
+    oldValue = oldValue.trim().toLowerCase();
+    console.log(this.items);
+    newValue = newValue.trim().toLowerCase();
+
+    if (newValue === oldValue)
+        return;
+
+    if (newValue === "") {
+        this.update({
+            itemSelectors: [],
+        });
+    } else {
+        let pattern = newValue.split(new RegExp("\\s+")).join(".*");
+        let regex = new RegExp(pattern);
+        this.update({
+            itemSelectors: [
+                () => (this.items).filter(
+                    (item) => regex.test(item.label.toLowerCase())
+                ),
+            ],
+        });
+    }
 }
