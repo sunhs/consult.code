@@ -7,8 +7,8 @@ import { LruMap, WeightedCache } from "../utils/datastructs";
 /**
  * Cache Timing:
  *  - when project added, set `projectsLRU` (via command)
- *  - when project opened, set `projectsLRU` (in `ProjectManager`'s listener)
- *  - when file opened, resolve project, set `projectsLRU` and `projectFileWeightedCache` (in `ProjectManager`'s listener)
+ *  - when project opened, set `projectsLRU` (via listener)
+ *  - when file opened, resolve project, set `projectsLRU` and `projectFileWeightedCache` (via listener)
  */
 class ProjectCache {
     /**
@@ -133,6 +133,10 @@ class ProjectCache {
 }
 
 
+/**
+ * Cache Timing:
+ *  - when file opened, set `files` (via listener)
+ */
 class RecentFileCache {
     files: WeightedCache<string>;
     cacheFile = PathLib.join(ConfigFileRootDir, "recentf.json");
@@ -160,6 +164,10 @@ class RecentFileCache {
         // new to old
         let jsonObj = this.files.arr.reverse();
         fs.writeFileSync(this.cacheFile, JSON.stringify(jsonObj, null, 4));
+    }
+
+    putFile(filePath: string) {
+        this.files.put(filePath);
     }
 }
 

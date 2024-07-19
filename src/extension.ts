@@ -2,6 +2,7 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 import { goToHome, goToRoot, goUpDir, showFileBrowser, toggleFilter, toggleHidden } from './fileBrowser/commands';
+import { registerListeners } from './listeners/register';
 import { addProject, confirmAddProject, deleteWSProject, editProjectList, findFileFromAllProjects, findFileFromCurrentProject, findFileFromWSProjects, openProject } from './projectManager/commands';
 import { saveAllCache } from './utils/cache';
 
@@ -9,6 +10,8 @@ import { saveAllCache } from './utils/cache';
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
+	registerListeners();
+
 	context.subscriptions.push(
 		vscode.commands.registerCommand("consult.showFileBrowser", () => {
 			showFileBrowser();

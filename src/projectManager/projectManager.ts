@@ -1,9 +1,9 @@
 import * as fs from "fs";
 import * as OS from "os";
 import * as PathLib from "path";
-import { commands, Uri, window, workspace } from "vscode";
+import { commands, Uri, workspace } from "vscode";
 import { Consult } from "../consult";
-import { cacheFiles, projectCache } from "../utils/cache";
+import { projectCache } from "../utils/cache";
 import { getConfigExcludeAsProject, getConfigFilterGlobPatterns, getConfigProjectConfFiles, getConfigProjectDotIgnoreFiles } from "../utils/conf";
 import { FixSizedMap } from "../utils/datastructs";
 import * as fsUtils from "../utils/fs";
@@ -29,8 +29,6 @@ export class ProjectManager extends Consult<ProjectItem | ProjectFileItem> {
         super();
 
         this.filepathToProjectFileItem = new FixSizedMap<string, ProjectFileItem>(this.cacheSize);
-
-        this.registerListener();
     }
 
     buildExcludeGlobPattern(projectRoot: string) {
@@ -57,53 +55,6 @@ export class ProjectManager extends Consult<ProjectItem | ProjectFileItem> {
 
         // `projectRoot` already contains a trailing /
         return `${projectRoot}{${Array.from(patternSet).join(",")}}`
-    }
-
-    registerListener() {
-        workspace.onDidChangeWorkspaceFolders(
-            (e) => {
-                if (e.added.length === 0) {
-                    return;
-                }
-                for (let folder of e.added) {
-                    this.tryAddProject(folder.uri.path);
-                }
-            }
-        );
-
-        window.onDidChangeVisibleTextEditors(
-            (editors) => {
-                if (editors.length === 0) {
-                    return;
-                }
-
-                let editor = window.activeTextEditor!;
-                if (editor.document.isUntitled || cacheFiles.includes(editor.document.uri.path)) {
-                    return;
-
-                } this.tryAddProject(editor.document.uri.path).then(
-                    (projectRoot) => {
-                        if (projectRoot) {
-                            projectCache.putProjectFileCache(PathLib.basename(projectRoot!), editor.document.uri.path);
-                        }
-                    }
-                );
-            }
-        );
-
-        // let watcher = workspace.createFileSystemWatcher(this.projectListFile, true, false, true);
-        // watcher.onDidChange(
-        //     (uri) => {
-        //         let availableProjects: Set<string> = new Set<string>();
-        //         this.projects.forEach(
-        //             (_, k) => {
-        //                 availableProjects.add(k);
-        //             }
-        //         );
-        //         loadRecentHistoryLog(this.recentHistoryLog, availableProjects);
-        //         saveRecentHistorLog(this.recentHistoryLog);
-        //     }
-        // );
     }
 
     async tryAddProject(filePath: string): Promise<string | undefined> {
@@ -242,7 +193,6 @@ export function onAcceptDeleteWSProject(this: ProjectManager) {
 
 export function onChangeValue(this: ProjectManager, oldValue: string, newValue: string) {
     oldValue = oldValue.trim().toLowerCase();
-    console.log(this.items);
     newValue = newValue.trim().toLowerCase();
 
     if (newValue === oldValue)
