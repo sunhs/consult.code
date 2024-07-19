@@ -4,6 +4,7 @@ import * as vscode from 'vscode';
 import { goToHome, goToRoot, goUpDir, showFileBrowser, toggleFilter, toggleHidden } from './fileBrowser/commands';
 import { registerListeners } from './listeners/register';
 import { addProject, confirmAddProject, deleteWSProject, editProjectList, findFileFromAllProjects, findFileFromCurrentProject, findFileFromWSProjects, openProject } from './projectManager/commands';
+import { showRecentFiles } from './recentf/commands';
 import { saveAllCache } from './utils/cache';
 
 
@@ -54,6 +55,9 @@ export function activate(context: vscode.ExtensionContext) {
 		}),
 		vscode.commands.registerCommand("consult.editProjectList", () => {
 			editProjectList();
+		}),
+		vscode.commands.registerCommand("consult.recentf", () => {
+			showRecentFiles();
 		}),
 	);
 }

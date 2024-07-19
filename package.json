@@ -50,6 +50,10 @@
 			{
 				"command": "consult.editProjectList",
 				"title": "Consult: Edit Project List"
+			},
+			{
+				"command": "consult.recentf",
+				"title": "Consult: Open Recent Files"
 			}
 		],
 		"configuration": [
@@ -164,6 +168,10 @@
 			{
 				"key": "shift+alt+p e",
 				"command": "consult.editProjectList"
+			},
+			{
+				"key": "shift+alt+p b",
+				"command": "consult.recentf"
 			}
 		]
 	},
