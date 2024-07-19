@@ -2,6 +2,7 @@ import * as PathLib from "path";
 import { commands, Uri, window, workspace } from "vscode";
 import { fileBrowser } from "../fileBrowser/commands";
 import * as fbDefs from "../fileBrowser/fileBrowser";
+import { projectCache } from "../utils/cache";
 import { EnumContext, setContext } from "../utils/context";
 import { ProjectItem } from "./item";
 import { genAllProjectItems, genProjectFileItemsFromProjectItem, genWSProjectItems, Messages, onAcceptDeleteWSProject, onAcceptOpenProject, onAcceptOpenProjectFile, onAcceptSearchProject, onChangeValue, ProjectManager } from "./projectManager";
@@ -16,7 +17,6 @@ export function addProject() {
         [EnumContext.consultFileBrowserEmpty, true],
         [EnumContext.inConsultProjMgr, true]
     ]));
-    projectManager.readProjectListIfNewer();
 
     fileBrowser.createQuickPick({
         itemGenerator: fbDefs.genItemsForCurDir,
@@ -49,7 +49,6 @@ export function openProject() {
     setContext(new Map([
         [EnumContext.inConsultProjMgr, true]
     ]));
-    projectManager.readProjectListIfNewer();
 
     projectManager.createQuickPick({
         itemGenerator: genAllProjectItems,
@@ -75,7 +74,6 @@ export function findFileFromAllProjects() {
     setContext(new Map([
         [EnumContext.inConsultProjMgr, true]
     ]));
-    projectManager.readProjectListIfNewer();
 
     projectManager.createQuickPick({
         itemGenerator: genAllProjectItems,
@@ -101,7 +99,6 @@ export function findFileFromWSProjects() {
     setContext(new Map([
         [EnumContext.inConsultProjMgr, true]
     ]));
-    projectManager.readProjectListIfNewer();
 
     projectManager.createQuickPick({
         itemGenerator: genWSProjectItems,
@@ -126,7 +123,6 @@ export async function findFileFromCurrentProject() {
     setContext(new Map([
         [EnumContext.inConsultProjMgr, true]
     ]));
-    projectManager.readProjectListIfNewer();
 
     let projectItem: ProjectItem | undefined;
 
@@ -172,7 +168,6 @@ export function deleteWSProject() {
     setContext(new Map([
         [EnumContext.inConsultProjMgr, true]
     ]));
-    projectManager.readProjectListIfNewer();
 
     if (workspace.workspaceFolders === undefined || workspace.workspaceFolders.length === 0) {
         return;
@@ -203,13 +198,12 @@ export function confirmAddProject() {
     }
     let dir = fileBrowser.quickPick!.activeItems[0].absPath!;
     // new ProjectItem(dir).intoWorkspace();
-    projectManager.projects.set(PathLib.basename(dir), dir);
-    projectManager.saveProjects();
+    projectCache.setProject(PathLib.basename(dir), dir);
     window.showInformationMessage(Messages.projectAdded);
 
     fileBrowser.quickPick!.hide();
 }
 
 export function editProjectList() {
-    commands.executeCommand("vscode.open", Uri.file(projectManager.projectListFile));
+    commands.executeCommand("vscode.open", Uri.file(projectCache.projectListFile));
 }

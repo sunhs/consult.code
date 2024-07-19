@@ -1,6 +1,9 @@
-// A map with size limit.
-// On Insertion, when exceeding size limit, the oldest item will be deleted.
-// So can be used as a simple cache.
+/**
+ * A map with size limit.
+ *
+ * On Insertion, when exceeding size limit, the oldest item will be deleted.
+ * So can be used as a simple cache.
+ */
 export class FixSizedMap<K, V> {
     private data: Map<K, V>;
     private maxEntries: number;
@@ -29,52 +32,35 @@ export class FixSizedMap<K, V> {
     }
 }
 
-
-// use Map's property of ordered insertion to build an LRU cache
-// Actually not an LruCache, as it does noting on visiting.
-// Can be thought of as an Array with quick search (map).
-// And the later an item is inserted to the Array, the bigger weight (index).
-// It's not a common data structure (strongly related to PROJECT_FILE_LRU_CACHE) and maybe should be moved elsewhere.
-export class WeightedLruCache<T> {
-    private data: Map<T, number>;
-    private maxEntries: number;
+/**
+ * A cache of fixed size, that makes the most recently stored item has the highest weight (array index).
+ *
+ * Mainly used to sort items.
+ */
+export class WeightedCache<T> {
+    arr: T[];
+    maxEntries: number;
 
     constructor(maxEntries: number) {
-        this.data = new Map<T, number>();
+        this.arr = [];
         this.maxEntries = maxEntries;
     }
 
-    public get(key: T): number {
-        let data = this.data.get(key);
-        return data !== undefined ? data : -1;
+    public getWeight(key: T): number {
+        return this.arr.indexOf(key);
     }
 
     public put(key: T) {
-        let keyToDelete: T | undefined;
-        if (this.data.has(key)) {
-            keyToDelete = key;
-        } else if (this.data.size >= this.maxEntries) {
-            keyToDelete = this.data.keys().next().value;
+        let idx = this.arr.indexOf(key);
+        if (idx !== -1) {
+            this.arr.splice(idx, 1);
+        } else {
+            while (this.arr.length >= this.maxEntries) {
+                this.arr.shift();
+            }
         }
 
-        if (keyToDelete) {
-            let keys = this.data.keys();
-            while (true) {
-                if (keys.next().value === keyToDelete) {
-                    break;
-                }
-            }
-            for (let k of keys) {
-                this.data.set(k, this.data.get(k)! - 1);
-            }
-            this.data.delete(key);
-        }
-
-        this.data.set(key, this.data.size);
-    }
-
-    public getData(): Map<T, number> {
-        return this.data;
+        this.arr.push(key);
     }
 }
 
@@ -127,10 +113,10 @@ export class LruMap<K, V> {
         return node.value;
     }
 
-    public set(key: K, value: V): this {
+    public set(key: K, value: V) {
         if (this.get(key)) {
             this.indexMap.get(key)!.value = value;
-            return this;
+            return;
         }
 
         let node = new LinkedListNode<K, V>(this.head, this.head.next!, key, value);
@@ -144,7 +130,6 @@ export class LruMap<K, V> {
         }
 
         this.size = this.indexMap.size;
-        return this;
     }
 
     delete(key: K): boolean {
@@ -196,9 +181,7 @@ export class LruMap<K, V> {
         let entries: [K, V][] = [];
         let node = this.head.next!;
         while (node.next) {
-            if (this.indexMap.has(node.key!)) {
-                entries.push([node.key!, node.value!]);
-            }
+            entries.push([node.key!, node.value!]);
             node = node.next;
         }
         return entries;

@@ -3,6 +3,7 @@
 import * as vscode from 'vscode';
 import { goToHome, goToRoot, goUpDir, showFileBrowser, toggleFilter, toggleHidden } from './fileBrowser/commands';
 import { addProject, confirmAddProject, deleteWSProject, editProjectList, findFileFromAllProjects, findFileFromCurrentProject, findFileFromWSProjects, openProject } from './projectManager/commands';
+import { saveAllCache } from './utils/cache';
 
 
 // this method is called when your extension is activated
@@ -55,4 +56,6 @@ export function activate(context: vscode.ExtensionContext) {
 }
 
 // this method is called when your extension is deactivated
-export function deactivate() { }
+export function deactivate() {
+	saveAllCache();
+}

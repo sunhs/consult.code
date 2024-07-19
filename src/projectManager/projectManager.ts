@@ -1,13 +1,13 @@
 import * as fs from "fs";
 import * as OS from "os";
 import * as PathLib from "path";
-import { Md5 } from "ts-md5";
 import { commands, Uri, window, workspace } from "vscode";
 import { Consult } from "../consult";
-import { ConfigFileRootDir, getConfigExcludeAsProject, getConfigFilterGlobPatterns, getConfigProjectDotIgnoreFiles } from "../utils/conf";
-import { LruMap } from "../utils/datastructs";
+import { cacheFiles, projectCache } from "../utils/cache";
+import { getConfigExcludeAsProject, getConfigFilterGlobPatterns, getConfigProjectConfFiles, getConfigProjectDotIgnoreFiles } from "../utils/conf";
+import { FixSizedMap } from "../utils/datastructs";
 import * as fsUtils from "../utils/fs";
-import { getFileItemFromCache, loadRecentHistoryLog, ProjectFileItem, ProjectItem, saveRecentHistorLog, updateRecentHistoryLog } from "./item";
+import { ProjectFileItem, ProjectItem } from "./item";
 
 
 export enum Messages {
@@ -19,50 +19,19 @@ export enum Messages {
 
 
 export class ProjectManager extends Consult<ProjectItem | ProjectFileItem> {
-    projectListFile: string = PathLib.join(ConfigFileRootDir, "projects.json");
-    projectListFileLastMTimeMs: number = 0;
-    lastProjectListFileHash: string | undefined;
-    projects: LruMap<string, string> = new LruMap<string, string>(100);
-    recentHistoryLog: string = PathLib.join(ConfigFileRootDir, "rank.json");
-    fileConsideredProject: Set<string> = new Set<string>();
+    /**
+     * Map file path to ProjectFileItem, just to quickly find a ProjectFileItem from its absPath.
+     */
+    filepathToProjectFileItem: FixSizedMap<string, ProjectFileItem>;
+    cacheSize = 200;
 
     constructor() {
         super();
 
-        if (!fs.existsSync(ConfigFileRootDir)) {
-            fs.mkdirSync(ConfigFileRootDir);
-        }
-
-        this.readProjectListIfNewer();
-
-        if (!fs.existsSync(this.recentHistoryLog)) {
-            fs.writeFileSync(this.recentHistoryLog, "{}");
-        }
-        loadRecentHistoryLog(this.recentHistoryLog);
+        this.filepathToProjectFileItem = new FixSizedMap<string, ProjectFileItem>(this.cacheSize);
 
         this.registerListener();
     }
-
-    readProjectListIfNewer() {
-        if (!fs.existsSync(this.projectListFile)) {
-            fs.writeFileSync(this.projectListFile, "{}");
-        }
-
-        let stat = fs.statSync(this.projectListFile);
-        if (stat.mtimeMs > this.projectListFileLastMTimeMs) {
-            let content = fs.readFileSync(this.projectListFile, "utf8");
-            let parsed: { [key: string]: string } = JSON.parse(content);
-            this.projects.clear();
-            // In the list file, entries are listed from newer to older.
-            Object.entries(parsed).reverse().forEach(
-                ([k, v]) => {
-                    this.projects.set(k, v);
-                }
-            );
-            this.projectListFileLastMTimeMs = stat.mtimeMs;
-        }
-    }
-
 
     buildExcludeGlobPattern(projectRoot: string) {
         let extendedPatterns: string[] = [];
@@ -109,13 +78,13 @@ export class ProjectManager extends Consult<ProjectItem | ProjectFileItem> {
                 }
 
                 let editor = window.activeTextEditor!;
-                if (editor.document.isUntitled || editor.document.uri.path === this.projectListFile || editor.document.uri.path === this.recentHistoryLog) {
+                if (editor.document.isUntitled || cacheFiles.includes(editor.document.uri.path)) {
                     return;
+
                 } this.tryAddProject(editor.document.uri.path).then(
                     (projectRoot) => {
                         if (projectRoot) {
-                            updateRecentHistoryLog(PathLib.basename(projectRoot!), editor.document.uri.path);
-                            saveRecentHistorLog(this.recentHistoryLog);
+                            projectCache.putProjectFileCache(PathLib.basename(projectRoot!), editor.document.uri.path);
                         }
                     }
                 );
@@ -144,8 +113,7 @@ export class ProjectManager extends Consult<ProjectItem | ProjectFileItem> {
             // No matter whether the projectName already exists, update it.
             // So that the same projectName for different projects won't be occupied by
             // one project permanently.
-            this.projects.set(PathLib.basename(projectRoot), projectRoot);
-            this.saveProjects();
+            projectCache.setProject(PathLib.basename(projectRoot), projectRoot);
             return projectRoot;
         }
 
@@ -154,7 +122,7 @@ export class ProjectManager extends Consult<ProjectItem | ProjectFileItem> {
 
     async tryResolveProjectRoot(filePath: string): Promise<string | undefined> {
         // 1. try file item cache
-        let cachedFileItem = getFileItemFromCache(filePath);
+        let cachedFileItem = this.filepathToProjectFileItem.get(filePath);
         if (cachedFileItem) {
             return cachedFileItem.projectRoots.values().next().value;
         }
@@ -166,7 +134,7 @@ export class ProjectManager extends Consult<ProjectItem | ProjectFileItem> {
         }
 
         // 3. try saved project list
-        for (let projectPath of this.projects.values()) {
+        for (let projectPath of projectCache.getProjectPaths()) {
             // Avoid the condition where
             // filePath: /path/to/dir_xxx/file
             // projectPath: /path/to/dir
@@ -190,7 +158,7 @@ export class ProjectManager extends Consult<ProjectItem | ProjectFileItem> {
             let files = await workspace.fs.readDirectory(Uri.file(dir));
             let fileNames = files.map(([fileName, _]) => fileName);
             let intersection = [...fileNames].filter(
-                fileName => this.fileConsideredProject.has(fileName)
+                fileName => getConfigProjectConfFiles().includes(fileName)
             );
             if (intersection.length !== 0) {
                 return dir;
@@ -200,34 +168,16 @@ export class ProjectManager extends Consult<ProjectItem | ProjectFileItem> {
 
         return undefined;
     }
-
-    saveProjects() {
-        for (let [projName, projPath] of this.projects.entries()) {
-            if (!fs.existsSync(projPath) || !PathLib.isAbsolute(projPath)) {
-                console.log(`remove project ${projPath}`);
-                this.projects.delete(projName);
-            }
-        }
-        let jsonObj: { [key: string]: string } = {};
-        this.projects.entries().forEach(
-            ([k, v], _) => {
-                jsonObj[k] = v;
-            }
-        );
-        let content = JSON.stringify(jsonObj, null, 4);
-        let hash = Md5.hashStr(content);
-        if (hash !== this.lastProjectListFileHash) {
-            fs.writeFileSync(this.projectListFile, content);
-        }
-    }
 }
+
 
 export function genAllProjectItems(this: ProjectManager) {
     this.quickPick!.title = Messages.selectProject;
-    return this.projects.values().map(
+    return projectCache.getProjectPaths().map(
         (v, _) => new ProjectItem(v)
     );
 }
+
 
 export function genWSProjectItems(this: ProjectManager) {
     this.quickPick!.title = Messages.selectWorkspaceProject;
@@ -241,8 +191,6 @@ export function genWSProjectItems(this: ProjectManager) {
 export function onAcceptOpenProject(this: ProjectManager) {
     let selected = this.quickPick!.selectedItems[0] as ProjectItem;
     selected.intoWorkspace();
-    this.projects.set(selected.label, selected.absProjectRoot);
-    this.saveProjects();
     this.quickPick!.hide();
 }
 
@@ -271,9 +219,6 @@ export function onAcceptOpenProjectFile(this: ProjectManager) {
 
 
 export async function genProjectFileItemsFromProjectItem(this: ProjectManager, projectItem: ProjectItem) {
-    this.projects.set(projectItem.label, projectItem.absProjectRoot);
-    this.saveProjects();
-
     this.quickPick!.title = PathLib.basename(projectItem.label);
 
     return await projectItem.getFileItems(
