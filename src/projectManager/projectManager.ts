@@ -222,7 +222,7 @@ export async function genProjectFileItemsFromProjectItem(this: ProjectManager, p
     this.quickPick!.title = PathLib.basename(projectItem.label);
 
     return await projectItem.getFileItems(
-        this.buildExcludeGlobPattern(projectItem.absProjectRoot)
+        this.buildExcludeGlobPattern(projectItem.absProjectRoot), this.filepathToProjectFileItem
     ) || [];
 }
 

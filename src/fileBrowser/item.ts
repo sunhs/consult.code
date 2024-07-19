@@ -4,8 +4,6 @@ import { CancellationError, FileType, QuickPickItem, ThemeIcon, Uri } from "vsco
 
 export class FilePathItem implements QuickPickItem {
     label: string;
-    description?: string;
-    detail?: string;
     iconPath?: Uri | { light: Uri; dark: Uri; } | ThemeIcon | undefined;
     alwaysShow = true;
 
