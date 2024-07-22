@@ -1,9 +1,11 @@
+import * as OS from "os";
 import * as PathLib from "path";
 import { CancellationError, FileType, QuickPickItem, ThemeIcon, Uri } from "vscode";
 
 
 export class FilePathItem implements QuickPickItem {
     label: string;
+    description?: string;
     iconPath?: Uri | { light: Uri; dark: Uri; } | ThemeIcon | undefined;
     alwaysShow = true;
 
@@ -11,7 +13,7 @@ export class FilePathItem implements QuickPickItem {
     fileType: FileType;
     show: boolean = true;
 
-    constructor(path: string, fileType: FileType) {
+    constructor(path: string, fileType: FileType, showFilePath?: boolean) {
         if (!PathLib.isAbsolute(path)) {
             let err = new CancellationError();
             err.message = `path ${path} is not absolute`;
@@ -34,6 +36,10 @@ export class FilePathItem implements QuickPickItem {
                 this.iconPath = ThemeIcon.File;
                 // this.iconPath = new ThemeIcon("json");
                 break;
+        }
+
+        if (showFilePath) {
+            this.description = this.absPath.replace(OS.homedir(), "~");
         }
     }
 }

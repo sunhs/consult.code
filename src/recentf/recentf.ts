@@ -1,4 +1,4 @@
-import { commands, FileType, Uri } from "vscode";
+import { commands, FileType, Uri, window } from "vscode";
 import { Consult } from "../consult";
 import { FilePathItem } from "../fileBrowser/item";
 import { recentFileCache } from "../utils/cache";
@@ -9,9 +9,24 @@ export class RecentF extends Consult<FilePathItem> { }
 
 
 export async function genItems(this: RecentF) {
-    return recentFileCache.files.arr.reverse().map(
-        (filepath) => new FilePathItem(filepath, FileType.File)
+    let items: FilePathItem[] = [];
+    let compareActiveDoc = true;
+    let doc = window.activeTextEditor?.document;
+    if (doc === undefined || doc.isUntitled) {
+        compareActiveDoc = false;
+    }
+
+    recentFileCache.files.arr.slice().reverse().map(
+        (filepath) => {
+            if (compareActiveDoc && doc!.uri.fsPath === filepath) {
+                compareActiveDoc = false;
+                return;
+            }
+            items.push(new FilePathItem(filepath, FileType.File, true));
+        }
     );
+
+    return items;
 }
 
 
