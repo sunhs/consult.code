@@ -53,7 +53,9 @@ export class ProjectManager extends Consult<ProjectItem | ProjectFileItem> {
             getConfigFilterGlobPatterns().concat(extendedPatterns)
         );
 
-        // `projectRoot` already contains a trailing /
+        if (!projectRoot.endsWith("/")) {
+            projectRoot = projectRoot + "/";
+        }
         return `${projectRoot}{${Array.from(patternSet).join(",")}}`
     }
 

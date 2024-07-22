@@ -20,7 +20,9 @@ export class ProjectItem implements QuickPickItem {
     }
 
     async getFileItems(excludeGlobPattern: string, filepathToProjectFileItem: FixSizedMap<string, ProjectFileItem>) {
-        // `this.absProjectRoot` already contains a trailing /
+        if (!this.absProjectRoot.endsWith("/")) {
+            this.absProjectRoot = this.absProjectRoot + "/";
+        }
         let includeGlobPattern = `${this.absProjectRoot}**`;
 
         return await fg(includeGlobPattern, { ignore: [excludeGlobPattern], onlyFiles: true }).then(
