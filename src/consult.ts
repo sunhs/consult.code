@@ -40,7 +40,15 @@ export type ConsultOps<T extends QuickPickItem, D extends Consult<T>> = {
 
 
 export class Consult<T extends QuickPickItem> {
-    // Shared across all instances.
+    //
+    /**
+     * Shared across all instances.
+     * Only in FileBrowser, these are toggleable.
+     * In other cases:
+     *   1) dot files are always included
+     *   2) filter globs are always respected
+     *   3) if related to projects, dot ignore files are always respected
+     */
     static hideDotFiles: boolean = true;
     static filterFiles: boolean = true;
 

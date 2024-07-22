@@ -25,7 +25,7 @@ export class ProjectItem implements QuickPickItem {
         }
         let includeGlobPattern = `${this.absProjectRoot}**`;
 
-        return await fg(includeGlobPattern, { ignore: [excludeGlobPattern], onlyFiles: true }).then(
+        return await fg(includeGlobPattern, { ignore: [excludeGlobPattern], onlyFiles: true, dot: true }).then(
             (filepaths) => {
                 if (filepaths.length === 0) {
                     return undefined;
