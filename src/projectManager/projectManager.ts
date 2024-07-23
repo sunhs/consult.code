@@ -1,7 +1,7 @@
 import * as fs from "fs";
 import * as OS from "os";
 import * as PathLib from "path";
-import { commands, Uri, workspace } from "vscode";
+import { commands, Uri, window, workspace } from "vscode";
 import { Consult } from "../consult";
 import { projectCache } from "../utils/cache";
 import { getConfigExcludeAsProject, getConfigFilterGlobPatterns, getConfigProjectConfFiles, getConfigProjectDotIgnoreFiles } from "../utils/conf";
@@ -70,7 +70,7 @@ export class ProjectManager extends Consult<ProjectItem | ProjectFileItem> {
             return projectRoot;
         }
 
-        console.log(`failed to detect a project for ${filePath}`);
+        window.showErrorMessage(`failed to detect a project for ${filePath}`);
     }
 
     async tryResolveProjectRoot(filePath: string): Promise<string | undefined> {

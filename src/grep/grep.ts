@@ -64,7 +64,7 @@ export async function genGrepItems(this: Grep, query: string, dir: string, dotIg
             items.push(new GrepItem(filePath, relFilePath, Number(lineNum), Number(colNum), content.join(":")));
         }
     }).catch((err) => {
-        console.error(err);
+        window.showErrorMessage(err.message);
     });
 
     return items;

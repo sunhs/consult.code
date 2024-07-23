@@ -1,5 +1,6 @@
 import * as fs from "fs";
 import * as PathLib from "path";
+import { window } from "vscode";
 import { ConfigFileRootDir } from "../utils/conf";
 import { LruMap, WeightedCache } from "../utils/datastructs";
 
@@ -54,7 +55,7 @@ class ProjectCache {
     saveProjectList() {
         for (let [projName, projPath] of this.projectsLRU.entries()) {
             if (!fs.existsSync(projPath) || !PathLib.isAbsolute(projPath)) {
-                console.log(`remove project ${projPath}`);
+                window.showInformationMessage(`remove project ${projPath}`);
                 this.projectsLRU.delete(projName);
             }
         }
