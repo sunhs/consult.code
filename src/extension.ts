@@ -2,6 +2,7 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 import { goToHome, goToRoot, goUpDir, intoDir, showFileBrowser, toggleFilter, toggleHidden } from './fileBrowser/commands';
+import { grepDir, grepProject } from './grep/commands';
 import { registerListeners } from './listeners/register';
 import { addProject, deleteWSProject, editProjectList, findFileFromAllProjects, findFileFromCurrentProject, findFileFromWSProjects, openProject } from './projectManager/commands';
 import { showRecentFiles } from './recentf/commands';
@@ -58,6 +59,12 @@ export function activate(context: vscode.ExtensionContext) {
 		}),
 		vscode.commands.registerCommand("consult.recentf", () => {
 			showRecentFiles();
+		}),
+		vscode.commands.registerCommand("consult.grepProject", () => {
+			grepProject();
+		}),
+		vscode.commands.registerCommand("consult.grepDir", () => {
+			grepDir();
 		}),
 	);
 }

@@ -29,6 +29,10 @@ export type ConsultOps<T extends QuickPickItem, D extends Consult<T>> = {
      */
     onChangeValue?: ((this: Readonly<D>, oldValue: string, newValue: string) => void | Promise<void>)[],
     /**
+     * Callback on changing active item.
+     */
+    onChangeActive?: ((this: Readonly<D>, e: Readonly<T[]>) => void | Promise<void>)[],
+    /**
      * Callback on accepting an item.
      */
     onAcceptItems?: ((this: D) => any)[],
@@ -57,6 +61,7 @@ export class Consult<T extends QuickPickItem> {
 
     // Keep track of event listener disposables.
     disposablesOnChangeValue: Disposable[] = [];
+    disposablesOnChangeActive: Disposable[] = [];
     disposablesOnAcceptItems: Disposable[] = [];
     disposablesOnHide: Disposable[] = [];
 
@@ -107,6 +112,19 @@ export class Consult<T extends QuickPickItem> {
             }
             let d = this.quickPick!.onDidChangeValue(onChangeValue.bind(this));
             this.disposablesOnChangeValue.push(d);
+        }
+
+        if (ops.onChangeActive) {
+            this.disposablesOnChangeActive.forEach((d) => { d.dispose(); })
+            this.disposablesOnChangeActive = [];
+
+            async function onChangeActive(this: D, e: Readonly<T[]>) {
+                for (let cb of ops.onChangeActive!) {
+                    await cb.call(this, e);
+                }
+            }
+            let d = this.quickPick!.onDidChangeActive(onChangeActive.bind(this));
+            this.disposablesOnChangeActive.push(d);
         }
 
         if (ops.onAcceptItems) {
@@ -175,6 +193,8 @@ export class Consult<T extends QuickPickItem> {
 
         this.disposablesOnChangeValue.forEach((d) => { d.dispose(); })
         this.disposablesOnChangeValue = [];
+        this.disposablesOnChangeActive.forEach((d) => { d.dispose(); })
+        this.disposablesOnChangeActive = [];
         this.disposablesOnAcceptItems.forEach((d) => { d.dispose(); })
         this.disposablesOnAcceptItems = [];
         this.disposablesOnHide.forEach((d) => { d.dispose(); })

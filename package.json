@@ -54,6 +54,14 @@
 			{
 				"command": "consult.recentf",
 				"title": "Consult: Open Recent Files"
+			},
+			{
+				"command": "consult.grepProject",
+				"title": "Consult: Grep Current Project"
+			},
+			{
+				"command": "consult.grepDir",
+				"title": "Consult: Select a Directory to Grep"
 			}
 		],
 		"configuration": [
@@ -172,6 +180,14 @@
 			{
 				"key": "shift+alt+p b",
 				"command": "consult.recentf"
+			},
+			{
+				"key": "shift+alt+p g p",
+				"command": "consult.grepProject"
+			},
+			{
+				"key": "shift+alt+p g d",
+				"command": "consult.grepDir"
 			}
 		]
 	},
