@@ -21,6 +21,9 @@ export class GrepItem implements QuickPickItem {
     }
 
     async open(preview: boolean = false) {
+        // When preview, in order not to mess up recentf list, the preview should not be in an active editor group.
+        // Thus, we use `ViewColumn.Beside` to put it in the column currently not activated, and preserve the focus.
+        // However, `ViewColumn.Beside` doesn't necessarily create a new column, so `Grep.previewCreated` will record the situation.
         return await window.showTextDocument(
             Uri.file(this.filePath),
             {

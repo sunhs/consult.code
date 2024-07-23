@@ -1,7 +1,7 @@
 import { exec } from "child_process";
 import * as PathLib from "path";
 import { promisify } from "util";
-import { commands, window } from "vscode";
+import { commands, TextEditor, ViewColumn, window, workspace } from "vscode";
 import { Consult } from "../consult";
 import { projectManager } from "../projectManager/commands";
 import { ProjectItem } from "../projectManager/item";
@@ -10,7 +10,16 @@ import { GrepItem } from "./item";
 
 
 export class Grep extends Consult<GrepItem> {
-    previewOpened: boolean = false;
+    /**
+     * A new ViewColumn (editor group?) is created.
+     * Need to do the cleanup on hide.
+     */
+    previewCreated: boolean = false;
+    /**
+     * Preview editors displayed.
+     * Need to do the cleanup on hide.
+     */
+    previewEditors: TextEditor[] = [];
     lastChangeValueTimeMs: number = 0;
 }
 
@@ -118,13 +127,22 @@ export function deferredOnChangeValue(this: Grep, { dir, projectItem }: { dir?: 
 }
 
 
-export function onChangeActive(this: Grep, e: Readonly<GrepItem[]>) {
-    if (e.length === 0) {
+export async function onChangeActive(this: Grep, items: Readonly<GrepItem[]>) {
+    if (items.length === 0) {
         return;
     }
 
-    e[0].open(true);
-    this.previewOpened = true;
+    let existingViewColumns: (ViewColumn | undefined)[] = [];
+    if (this.previewEditors.length === 0) {
+        existingViewColumns = window.visibleTextEditors.map((editor) => editor.viewColumn);
+    }
+
+    let editor = await items[0].open(true);
+    if (this.previewEditors.length === 0 && !existingViewColumns.includes(editor.viewColumn)) {
+        this.previewCreated = true;
+    }
+
+    this.previewEditors.push(editor);
 }
 
 
@@ -135,13 +153,24 @@ export function onAcceptItem(this: Grep) {
 }
 
 
-export function onHide(this: Grep) {
-    if (this.previewOpened) {
+export async function onHide(this: Grep) {
+    if (this.previewEditors.length > 0) {
         // FIXME: This will make the last preview editor focused, and thus adding the file to recentf.
-        commands.executeCommand("workbench.action.focusRightGroup");
-        commands.executeCommand("workbench.action.closeEditorsAndGroup");
-        this.previewOpened = false;
-    }
+        await commands.executeCommand("workbench.action.focusRightGroup");
 
-    this.lastChangeValueTimeMs = 0;
+        if (this.previewCreated) {
+            await commands.executeCommand("workbench.action.closeEditorsAndGroup");
+        } else {
+            let enablePreview: boolean = workspace.getConfiguration("workbench.editor").get("enablePreview")!;
+            if (enablePreview) {
+                await commands.executeCommand("workbench.action.closeActiveEditor");
+            } else {
+                window.showErrorMessage("Preview editors are disabled. Consult cannot decide which editors to close.")
+            }
+        }
+
+        this.previewCreated = false;
+        this.previewEditors = [];
+        this.lastChangeValueTimeMs = 0;
+    }
 }
