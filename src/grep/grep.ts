@@ -1,7 +1,7 @@
 import { exec } from "child_process";
 import * as PathLib from "path";
 import { promisify } from "util";
-import { commands } from "vscode";
+import { commands, window } from "vscode";
 import { Consult } from "../consult";
 import { projectManager } from "../projectManager/commands";
 import { ProjectItem } from "../projectManager/item";
@@ -55,12 +55,14 @@ export async function genGrepItems(this: Grep, query: string, dir: string, dotIg
     console.debug(`rg command: ${command}`)
 
     let items: GrepItem[] = [];
-    let dirRegex = new RegExp(`^${dir}`);
-    await promisify(exec)(command).then(({ stdout }) => {
+    let dirRegex = new RegExp(`^${dir}`),
+        rootDirRegex = new RegExp(`^/`);
+
+    await promisify(exec)(command, { maxBuffer: 1024 * 1024 * 10 }).then(({ stdout }) => {
         let lines = stdout.split("\n");
         for (let i = 0; i < lines.length - 1; ++i) {
             let [filePath, lineNum, colNum, ...content] = lines[i].split(":");
-            let relFilePath = filePath.replace(dirRegex, "");
+            let relFilePath = filePath.replace(dirRegex, "").replace(rootDirRegex, "");
             items.push(new GrepItem(filePath, relFilePath, Number(lineNum), Number(colNum), content.join(":")));
         }
     }).catch((err) => {
