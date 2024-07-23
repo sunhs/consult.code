@@ -4,7 +4,7 @@ import * as fbDefs from "../fileBrowser/fileBrowser";
 import { projectManager } from "../projectManager/commands";
 import { ProjectItem } from "../projectManager/item";
 import { EnumContext, setContext } from "../utils/context";
-import { genGrepItemsFromDir, genGrepItemsFromProject, Grep, onAcceptItem, onChangeActive, onHide } from "./grep";
+import { deferredOnChangeValue, Grep, onAcceptItem, onChangeActive, onHide } from "./grep";
 
 
 let grep = new Grep();
@@ -31,13 +31,8 @@ export async function grepProject() {
     } else {
         grep.createQuickPick({
             onChangeValue: [
-                function (this: Grep, _: string, newValue: string) {
-                    this.update({
-                        itemGenerator: async () => {
-                            return await genGrepItemsFromProject.call(this, newValue, projectItem!);
-                        },
-                        itemSelectors: [],
-                    })
+                function (this: Grep) {
+                    deferredOnChangeValue.call(this, { projectItem });
                 },
             ],
             onChangeActive: [
@@ -79,13 +74,8 @@ export async function grepDir() {
 
                 grep.createQuickPick({
                     onChangeValue: [
-                        function (this: Grep, _: string, newValue: string) {
-                            this.update({
-                                itemGenerator: async () => {
-                                    return await genGrepItemsFromDir.call(this, newValue, dir);
-                                },
-                                itemSelectors: [],
-                            })
+                        function (this: Grep) {
+                            deferredOnChangeValue.call(this, { dir });
                         },
                     ],
                     onChangeActive: [

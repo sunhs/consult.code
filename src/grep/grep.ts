@@ -11,6 +11,7 @@ import { GrepItem } from "./item";
 
 export class Grep extends Consult<GrepItem> {
     previewOpened: boolean = false;
+    lastChangeValueTimeMs: number = 0;
 }
 
 
@@ -38,10 +39,6 @@ export async function genGrepItemsFromDir(this: Grep, query: string, dir: string
 
 
 export async function genGrepItems(this: Grep, query: string, dir: string, dotIgnoreFilePaths: string[] = []) {
-    if (query === "") {
-        return [];
-    }
-
     let command = "rg -i --pretty --color=never --no-heading --column --hidden";
 
     for (let ignoreGlob of getConfigFilterGlobPatterns()) {
@@ -73,6 +70,54 @@ export async function genGrepItems(this: Grep, query: string, dir: string, dotIg
 }
 
 
+export function deferredOnChangeValue(this: Grep, { dir, projectItem }: { dir?: string, projectItem?: ProjectItem }, recordValue?: string) {
+    // This is not a deferred call, but rather triggered by quickpick value change
+    if (recordValue === undefined) {
+        let nowMs = Date.now();
+        let lastChangeValueTimeMs = this.lastChangeValueTimeMs;
+        this.lastChangeValueTimeMs = nowMs;
+
+        if (this.quickPick!.value === "" || this.quickPick!.value.length <= 2) {
+            console.debug("Query too short, not grepping");
+            return;
+        }
+
+        let intervalMs = 1000;
+        let elapsed = nowMs - lastChangeValueTimeMs;
+
+        // Not enough time has passed since the last value change, defer the call
+        if (lastChangeValueTimeMs !== 0 && elapsed < intervalMs) {
+            // Extract the value so that the closure won't get a changed value?
+            let recordValue = this.quickPick!.value;
+            setTimeout(() => deferredOnChangeValue.call(this, { dir, projectItem }, recordValue), intervalMs - elapsed);
+            console.debug(`Not enough time passed. Deferred in ${intervalMs - elapsed}ms with query: ${recordValue}`);
+            return;
+        }
+    }
+    // This is a deferred call (and thus enough time passed), but the query has changed, and thus this deferred call is outdated
+    else if (recordValue !== this.quickPick!.value) {
+        console.debug(`Deferred callback outdated: ${recordValue} !== ${this.quickPick!.value}`);
+        return;
+    }
+
+    // 1) Not a deferred call and enough time passed
+    // 2) A deffered call and the query hasn't changed
+    console.debug(`Do grep: ${this.quickPick!.value}`);
+    this.update({
+        itemGenerator: async () => {
+            if (projectItem !== undefined) {
+                return await genGrepItemsFromProject.call(this, this.quickPick!.value, projectItem);
+            }
+            else if (dir !== undefined) {
+                return await genGrepItemsFromDir.call(this, this.quickPick!.value, dir);
+            }
+            return [];
+        },
+        itemSelectors: [],
+    });
+}
+
+
 export function onChangeActive(this: Grep, e: Readonly<GrepItem[]>) {
     if (e.length === 0) {
         return;
@@ -97,4 +142,6 @@ export function onHide(this: Grep) {
         commands.executeCommand("workbench.action.closeEditorsAndGroup");
         this.previewOpened = false;
     }
+
+    this.lastChangeValueTimeMs = 0;
 }
