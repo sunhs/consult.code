@@ -48,7 +48,7 @@ export async function genGrepItemsFromDir(this: Grep, query: string, dir: string
 
 
 export async function genGrepItems(this: Grep, query: string, dir: string, dotIgnoreFilePaths: string[] = []) {
-    let command = "rg -i --pretty --color=never --no-heading --column --hidden";
+    let command = "rg -i --pretty --color=never --column --hidden";
 
     for (let ignoreGlob of getConfigFilterGlobPatterns()) {
         command += ` --glob '!${ignoreGlob}'`;
@@ -66,8 +66,15 @@ export async function genGrepItems(this: Grep, query: string, dir: string, dotIg
 
     await promisify(exec)(command, { maxBuffer: 1024 * 1024 * 10 }).then(({ stdout }) => {
         let lines = stdout.split("\n");
+        let filePath = "";
         for (let i = 0; i < lines.length - 1; ++i) {
-            let [filePath, lineNum, colNum, ...content] = lines[i].split(":");
+            if (lines[i] === "")
+                continue;
+            if (i === 0 || lines[i - 1] === "") {
+                filePath = lines[i];
+                continue;
+            }
+            let [lineNum, colNum, ...content] = lines[i].split(":");
             let relFilePath = filePath.replace(dirRegex, "").replace(rootDirRegex, "");
             items.push(new GrepItem(filePath, relFilePath, Number(lineNum), Number(colNum), content.join(":")));
         }
@@ -164,6 +171,7 @@ export async function onHide(this: Grep) {
             let enablePreview: boolean = workspace.getConfiguration("workbench.editor").get("enablePreview")!;
             if (enablePreview) {
                 await commands.executeCommand("workbench.action.closeActiveEditor");
+                await commands.executeCommand("workbench.action.focusLeftGroup");
             } else {
                 window.showErrorMessage("Preview editors are disabled. Consult cannot decide which editors to close.")
             }
