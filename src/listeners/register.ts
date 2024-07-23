@@ -16,13 +16,12 @@ export function registerListeners() {
         }
     );
 
-    window.onDidChangeVisibleTextEditors(
-        (editors) => {
-            if (editors.length === 0) {
+    window.onDidChangeActiveTextEditor(
+        (editor) => {
+            if (editor === undefined) {
                 return;
             }
 
-            let editor = window.activeTextEditor!;
             if (editor.document.isUntitled) {
                 return;
             }
