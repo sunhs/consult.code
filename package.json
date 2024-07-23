@@ -112,6 +112,11 @@
 				"command": "consult.showFileBrowser"
 			},
 			{
+				"key": "tab",
+				"command": "consult.intoDir",
+				"when": "inConsultFileBrowser"
+			},
+			{
 				"key": "backspace",
 				"command": "consult.goUpDir",
 				"when": "inConsultFileBrowser && consultFileBrowserEmpty"
@@ -159,11 +164,6 @@
 			{
 				"key": "shift+alt+p d",
 				"command": "consult.deleteWSProject"
-			},
-			{
-				"key": "ctrl+j",
-				"command": "consult.confirmAddProject",
-				"when": "inConsultFileBrowser && inConsultProjMgr"
 			},
 			{
 				"key": "shift+alt+p e",

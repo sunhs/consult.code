@@ -58,14 +58,16 @@ export async function genItemsForCurDir(this: FileBrowser) {
 }
 
 
-export function setItemVisibility(this: FileBrowser) {
+export function setItemVisibility(this: FileBrowser, onlyDir: boolean = false, onlyFile: boolean = false) {
     return this.items.map(
         (filePathItem) => {
             let baseName = PathLib.basename(filePathItem.absPath);
+
             if (Consult.hideDotFiles && baseName.startsWith(".")) {
                 filePathItem.show = false;
                 return filePathItem;
             }
+
             if (Consult.filterFiles) {
                 for (let pattern of getConfigFilterGlobPatterns()) {
                     if (micromatch.isMatch(baseName, pattern)) {
@@ -74,6 +76,17 @@ export function setItemVisibility(this: FileBrowser) {
                     }
                 }
             }
+
+            if (onlyDir && !fsutils.isDirType(filePathItem.fileType)) {
+                filePathItem.show = false;
+                return filePathItem;
+            }
+
+            if (onlyFile && fsutils.isDirType(filePathItem.fileType)) {
+                filePathItem.show = false;
+                return filePathItem;
+            }
+
             filePathItem.show = true;
             return filePathItem;
         }

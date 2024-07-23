@@ -1,9 +1,9 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
-import { goToHome, goToRoot, goUpDir, showFileBrowser, toggleFilter, toggleHidden } from './fileBrowser/commands';
+import { goToHome, goToRoot, goUpDir, intoDir, showFileBrowser, toggleFilter, toggleHidden } from './fileBrowser/commands';
 import { registerListeners } from './listeners/register';
-import { addProject, confirmAddProject, deleteWSProject, editProjectList, findFileFromAllProjects, findFileFromCurrentProject, findFileFromWSProjects, openProject } from './projectManager/commands';
+import { addProject, deleteWSProject, editProjectList, findFileFromAllProjects, findFileFromCurrentProject, findFileFromWSProjects, openProject } from './projectManager/commands';
 import { showRecentFiles } from './recentf/commands';
 import { saveAllCache } from './utils/cache';
 
@@ -16,6 +16,9 @@ export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(
 		vscode.commands.registerCommand("consult.showFileBrowser", () => {
 			showFileBrowser();
+		}),
+		vscode.commands.registerCommand("consult.intoDir", () => {
+			intoDir();
 		}),
 		vscode.commands.registerCommand("consult.goUpDir", () => {
 			goUpDir();
@@ -49,9 +52,6 @@ export function activate(context: vscode.ExtensionContext) {
 		}),
 		vscode.commands.registerCommand("consult.deleteWSProject", () => {
 			deleteWSProject();
-		}),
-		vscode.commands.registerCommand("consult.confirmAddProject", () => {
-			confirmAddProject();
 		}),
 		vscode.commands.registerCommand("consult.editProjectList", () => {
 			editProjectList();

@@ -21,7 +21,9 @@ export function addProject() {
     fileBrowser.createQuickPick({
         itemGenerator: fbDefs.genItemsForCurDir,
         itemModifiers: [
-            fbDefs.setItemVisibility
+            function (this: fbDefs.FileBrowser) {
+                return fbDefs.setItemVisibility.call(this, true);
+            }
         ],
         itemSelectors: [
             fbDefs.selectShowableItems
@@ -30,7 +32,13 @@ export function addProject() {
             fbDefs.onChangeValue
         ],
         onAcceptItems: [
-            fbDefs.OnAcceptItem
+            function () {
+                let dir = fileBrowser.quickPick!.selectedItems[0].absPath!;
+                projectCache.setProject(PathLib.basename(dir), dir);
+                window.showInformationMessage(Messages.projectAdded);
+
+                fileBrowser.quickPick!.hide();
+            }
         ],
         onHide: [
             () => {
@@ -190,18 +198,6 @@ export function deleteWSProject() {
             }
         ]
     })
-}
-
-export function confirmAddProject() {
-    if (fileBrowser.quickPick!.activeItems.length === 0) {
-        return;
-    }
-    let dir = fileBrowser.quickPick!.activeItems[0].absPath!;
-    // new ProjectItem(dir).intoWorkspace();
-    projectCache.setProject(PathLib.basename(dir), dir);
-    window.showInformationMessage(Messages.projectAdded);
-
-    fileBrowser.quickPick!.hide();
 }
 
 export function editProjectList() {
