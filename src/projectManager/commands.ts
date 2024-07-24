@@ -199,7 +199,3 @@ export function deleteWSProject() {
         ]
     })
 }
-
-export function editProjectList() {
-    commands.executeCommand("vscode.open", Uri.file(projectCache.projectListFile));
-}

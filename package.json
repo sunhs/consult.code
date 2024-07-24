@@ -48,10 +48,6 @@
 				"title": "Consult: Delete Workspace Project"
 			},
 			{
-				"command": "consult.editProjectList",
-				"title": "Consult: Edit Project List"
-			},
-			{
 				"command": "consult.recentf",
 				"title": "Consult: Open Recent Files"
 			},
