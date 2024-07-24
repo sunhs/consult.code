@@ -188,14 +188,6 @@
 			{
 				"key": "shift+alt+p d g",
 				"command": "consult.grepDir"
-			},
-			{
-				"key": "shift+alt+p c l",
-				"command": "consult.loadcache"
-			},
-			{
-				"key": "shift+alt+p c s",
-				"command": "consult.savecache"
 			}
 		]
 	},
