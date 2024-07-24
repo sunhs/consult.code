@@ -131,7 +131,7 @@ export function onChangeValue(this: FileBrowser, oldValue: string, newValue: str
             itemSelectors: [
                 selectShowableItems,
                 () => this.quickPick!.items.filter(
-                    (item: FilePathItem) => regex.test(item.label.toLowerCase())
+                    (item: FilePathItem) => regex.test(item.absPath.toLowerCase())
                 ),
             ],
         });

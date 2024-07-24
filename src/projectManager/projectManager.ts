@@ -210,7 +210,7 @@ export function onChangeValue(this: ProjectManager, oldValue: string, newValue: 
         this.update({
             itemSelectors: [
                 () => (this.items).filter(
-                    (item) => regex.test(item.label.toLowerCase())
+                    (item) => regex.test(item.description.toLowerCase())
                 ),
             ],
         });

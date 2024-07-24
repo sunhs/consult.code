@@ -2,7 +2,6 @@ import { commands, FileType, Uri, window } from "vscode";
 import { Consult } from "../consult";
 import { FilePathItem } from "../fileBrowser/item";
 import { recentFileCache } from "../utils/cache";
-import { EnumContext, setContext } from "../utils/context";
 
 
 export class RecentF extends Consult<FilePathItem> { }
@@ -31,10 +30,6 @@ export async function genItems(this: RecentF) {
 
 
 export function onChangeValue(this: RecentF, oldValue: string, newValue: string) {
-    setContext(new Map([
-        [EnumContext.consultFileBrowserEmpty, newValue === ""],
-    ]));
-
     oldValue = oldValue.trim().toLowerCase();
     newValue = newValue.trim().toLowerCase();
 
@@ -51,7 +46,7 @@ export function onChangeValue(this: RecentF, oldValue: string, newValue: string)
         this.update({
             itemSelectors: [
                 () => this.items.filter(
-                    (item: FilePathItem) => regex.test(item.label.toLowerCase())
+                    (item: FilePathItem) => regex.test(item.absPath.toLowerCase())
                 ),
             ],
         });
