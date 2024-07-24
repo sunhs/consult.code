@@ -37,6 +37,8 @@ class ProjectCache {
     }
 
     loadProjectList() {
+        this.projectsLRU.clear();
+
         if (!fs.existsSync(this.projectListFile)) {
             fs.writeFileSync(this.projectListFile, "{}");
         }
@@ -50,15 +52,13 @@ class ProjectCache {
                 this.projectsLRU.set(k, v);
             }
         );
+
+        this.revalidateProjects();
     }
 
     saveProjectList() {
-        for (let [projName, projPath] of this.projectsLRU.entries()) {
-            if (!fs.existsSync(projPath) || !PathLib.isAbsolute(projPath)) {
-                window.showInformationMessage(`remove project ${projPath}`);
-                this.projectsLRU.delete(projName);
-            }
-        }
+        this.revalidateProjects();
+
         let jsonObj: { [key: string]: string } = {};
         // new to old
         this.projectsLRU.entries().forEach(
@@ -71,6 +71,8 @@ class ProjectCache {
     }
 
     loadProjectFileCache() {
+        this.projectFileWeightedCache.clear();
+
         if (!fs.existsSync(this.projectFileCacheFile)) {
             fs.writeFileSync(this.projectFileCacheFile, "{}");
         }
@@ -88,9 +90,13 @@ class ProjectCache {
                 this.projectFileWeightedCache.set(projectName, cache);
             }
         );
+
+        this.revalidateProjectFiles();
     }
 
     saveProjectFileCache() {
+        this.revalidateProjectFiles();
+
         let jsonObj: { [key: string]: string[] } = {};
         this.projectFileWeightedCache.forEach(
             (cache, projectName) => {
@@ -131,6 +137,36 @@ class ProjectCache {
         }
         this.projectFileWeightedCache.get(projectName)!.put(filePath);
     }
+
+
+    revalidateProjects() {
+        for (let [projectName, projectPath] of this.projectsLRU.entries()) {
+            if (!fs.existsSync(projectPath) || !PathLib.isAbsolute(projectPath)) {
+                window.showInformationMessage(`remove invalid project ${projectName} (${projectPath})`);
+                this.projectsLRU.delete(projectPath);
+            }
+        }
+    }
+
+    revalidateProjectFiles() {
+        for (let [projectName, cache] of this.projectFileWeightedCache) {
+            if (!this.projectsLRU.has(projectName)) {
+                window.showInformationMessage(`remove non-existent project ${projectName}`);
+                this.projectFileWeightedCache.delete(projectName);
+                continue;
+            }
+
+            let validateCache = new WeightedCache<string>(this.projectFileCacheMaxSize);
+            for (let filePath of cache.arr) {
+                if (!fs.existsSync(filePath) || !PathLib.isAbsolute(filePath)) {
+                    window.showInformationMessage(`remove invalid file ${filePath} from project ${projectName}`);
+                    continue;
+                }
+                validateCache.put(filePath);
+            }
+            this.projectFileWeightedCache.set(projectName, validateCache);
+        }
+    }
 }
 
 
@@ -149,6 +185,8 @@ class RecentFileCache {
     }
 
     loadCache() {
+        this.files.arr = [];
+
         if (!fs.existsSync(this.cacheFile)) {
             fs.writeFileSync(this.cacheFile, "[]");
         }
@@ -159,9 +197,13 @@ class RecentFileCache {
         for (let file of parsed.reverse()) {
             this.files.put(file);
         }
+
+        this.revalidateFiles();
     }
 
     saveCache() {
+        this.revalidateFiles();
+
         // new to old
         let jsonObj = this.files.arr.reverse();
         fs.writeFileSync(this.cacheFile, JSON.stringify(jsonObj, null, 4));
@@ -169,6 +211,18 @@ class RecentFileCache {
 
     putFile(filePath: string) {
         this.files.put(filePath);
+    }
+
+    revalidateFiles() {
+        let validateCache = new WeightedCache<string>(this.cacheMaxSize);
+        for (let filePath of this.files.arr) {
+            if (!fs.existsSync(filePath) || !PathLib.isAbsolute(filePath)) {
+                window.showInformationMessage(`remove invalid file ${filePath} from recent files`);
+                continue;
+            }
+            validateCache.put(filePath);
+        }
+        this.files = validateCache;
     }
 }
 
@@ -186,6 +240,13 @@ export const cacheFiles = [
     projectCache.projectFileCacheFile,
     recentFileCache.cacheFile
 ]
+
+
+export function loadAllCache() {
+    projectCache.loadProjectList();
+    projectCache.loadProjectFileCache();
+    recentFileCache.loadCache();
+}
 
 
 export function saveAllCache() {
