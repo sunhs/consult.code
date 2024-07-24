@@ -58,6 +58,14 @@
 			{
 				"command": "consult.grepDir",
 				"title": "Consult: Select a Directory to Grep"
+			},
+			{
+				"command": "consult.loadCache",
+				"title": "Consult: Load Cache"
+			},
+			{
+				"command": "consult.saveCache",
+				"title": "Consult: Save Cache"
 			}
 		],
 		"configuration": [
@@ -146,44 +154,48 @@
 				"when": "inConsultFileBrowser && consultFileBrowserEmpty"
 			},
 			{
-				"key": "shift+alt+p a",
+				"key": "shift+alt+p p a",
 				"command": "consult.addProject"
 			},
 			{
-				"key": "shift+alt+p o",
+				"key": "shift+alt+p p o",
 				"command": "consult.openProject"
 			},
 			{
-				"key": "shift+alt+p p",
+				"key": "shift+alt+p p p",
 				"command": "consult.findFileFromAllProjects"
 			},
 			{
-				"key": "shift+alt+p w",
+				"key": "shift+alt+p p w",
 				"command": "consult.findFileFromWSProjects"
 			},
 			{
-				"key": "shift+alt+p c",
+				"key": "shift+alt+p p f",
 				"command": "consult.findFileFromCurrentProject"
 			},
 			{
-				"key": "shift+alt+p d",
+				"key": "shift+alt+p p d",
 				"command": "consult.deleteWSProject"
 			},
 			{
-				"key": "shift+alt+p e",
-				"command": "consult.editProjectList"
-			},
-			{
-				"key": "shift+alt+p b",
+				"key": "shift+alt+p b b",
 				"command": "consult.recentf"
 			},
 			{
-				"key": "shift+alt+p g p",
+				"key": "shift+alt+p p g",
 				"command": "consult.grepProject"
 			},
 			{
-				"key": "shift+alt+p g d",
+				"key": "shift+alt+p d g",
 				"command": "consult.grepDir"
+			},
+			{
+				"key": "shift+alt+p c l",
+				"command": "consult.loadcache"
+			},
+			{
+				"key": "shift+alt+p c s",
+				"command": "consult.savecache"
 			}
 		]
 	},
