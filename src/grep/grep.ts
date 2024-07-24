@@ -48,6 +48,8 @@ export async function genGrepItemsFromDir(this: Grep, query: string, dir: string
 
 
 export async function genGrepItems(this: Grep, query: string, dir: string, dotIgnoreFilePaths: string[] = []) {
+    let pattern = query.split(new RegExp("\\s+")).join(".*");
+
     let command = "rg -i --pretty --color=never --column --hidden";
 
     for (let ignoreGlob of getConfigFilterGlobPatterns()) {
@@ -57,7 +59,7 @@ export async function genGrepItems(this: Grep, query: string, dir: string, dotIg
         command += ` --ignore-file ${ignoreFile}`;
     }
 
-    command += ` '${query}' ${dir}`;
+    command += ` '${pattern}' ${dir}`;
     console.debug(`rg command: ${command}`)
 
     let items: GrepItem[] = [];
