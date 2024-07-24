@@ -6,7 +6,7 @@ import { grepDir, grepProject } from './grep/commands';
 import { registerListeners } from './listeners/register';
 import { addProject, deleteWSProject, findFileFromAllProjects, findFileFromCurrentProject, findFileFromWSProjects, openProject } from './projectManager/commands';
 import { showRecentFiles } from './recentf/commands';
-import { saveAllCache } from './utils/cache';
+import { loadAllCache, saveAllCache } from './utils/cache';
 
 
 // this method is called when your extension is activated
@@ -63,7 +63,23 @@ export function activate(context: vscode.ExtensionContext) {
 		vscode.commands.registerCommand("consult.grepDir", () => {
 			grepDir();
 		}),
+		vscode.commands.registerCommand("consult.loadCache", () => {
+			loadAllCache();
+		}),
+		vscode.commands.registerCommand("consult.saveCache", () => {
+			saveAllCache();
+		}),
 	);
+
+	const scheduledSaveCache = setInterval(() => {
+		console.log("Saving cache...");
+		saveAllCache();
+	}, 60 * 5 * 1000);
+	context.subscriptions.push({
+		dispose() {
+			clearInterval(scheduledSaveCache);
+		}
+	});
 }
 
 // this method is called when your extension is deactivated
