@@ -102,7 +102,7 @@ class ProjectCache {
             (cache, projectName) => {
                 jsonObj[projectName] = [];
                 // new to old
-                for (let filePath of cache.arr.reverse()) {
+                for (let filePath of cache.arr.slice().reverse()) {
                     jsonObj[projectName].push(filePath);
                 }
             }
@@ -205,7 +205,7 @@ class RecentFileCache {
         this.revalidateFiles();
 
         // new to old
-        let jsonObj = this.files.arr.reverse();
+        let jsonObj = this.files.arr.slice().reverse();
         fs.writeFileSync(this.cacheFile, JSON.stringify(jsonObj, null, 4));
     }
 
