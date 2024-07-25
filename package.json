@@ -2,7 +2,7 @@
 	"name": "consult",
 	"displayName": "Consult",
 	"description": "",
-	"version": "0.0.5",
+	"version": "0.0.6",
 	"publisher": "hyesun",
 	"repository": {
 		"url": "https://github.com/sunhs/consult.code"
@@ -120,7 +120,7 @@
 		],
 		"keybindings": [
 			{
-				"key": "shift+alt+p f",
+				"key": "shift+alt+p f f",
 				"command": "consult.showFileBrowser"
 			},
 			{

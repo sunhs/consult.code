@@ -15,7 +15,7 @@
 
 ## 命令和特性
 
-- `consult.showFileBrowser` 显示文件浏览器（`⇧+⌥+p f`）。使用 `⌫` 返回上一级目录，`~` 去 Home 目录，`/` 去根目录。使用 `⌃+h` 切换隐藏文件，`⌃+f` 切换 glob 过滤文件。
+- `consult.showFileBrowser` 显示文件浏览器（`⇧+⌥+p f f`）。使用 `⌫` 返回上一级目录，`~` 去 Home 目录，`/` 去根目录。使用 `⌃+h` 切换隐藏文件，`⌃+f` 切换 glob 过滤文件。
 - `consult.addProject` 选择一个目录并保存到项目列表（`⇧+⌥+p p a`）
 - `consult.openProject` 打开一个已保存的项目，将其带入工作区（`⇧+⌥+p p o`）
 - `consult.findFileFromAllProjects` 从已保存的项目列表中选择一个项目并在其中查找文件（`⇧+⌥+p p p`）

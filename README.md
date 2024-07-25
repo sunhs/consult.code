@@ -16,7 +16,7 @@ Note that I didn't dig into how Emacs `Consult` work. I just create this extensi
 
 ## Commands and Features
 
-- `consult.showFileBrowser` reveal the file browser (`⇧+⌥+p f`). Use `⌫` to to up directory, `~` to go to home directory, `/` to go to root directory. Use `⌃+h` to toggle hidden files, `⌃+f` to toggle glob filter files.
+- `consult.showFileBrowser` reveal the file browser (`⇧+⌥+p f f`). Use `⌫` to to up directory, `~` to go to home directory, `/` to go to root directory. Use `⌃+h` to toggle hidden files, `⌃+f` to toggle glob filter files.
 - `consult.addProject` choose a directory and save to the project list (`⇧+⌥+p p a`)
 - `consult.openProject` open a saved project, bring it to the workspace (`⇧+⌥+p p o`)
 - `consult.findFileFromAllProjects` choose a project from the saved project list and find a file in it (`⇧+⌥+p p p`)
