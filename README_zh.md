@@ -54,5 +54,9 @@
 
 - 仅在 Mac 和 Linux 上测试。
 - 没有在大型项目上测试。因此，查找文件和执行 grep 可能遇到性能问题。
-- Grep 将显示预览，并在完成后清理预览。但在某些情况下，Consult 无法进行清理，因此预览仍然会显示。此外，预览可能会出现在 `recentf` 中。
+- Grep 相关问题（暂时不知道如何用现有的 VSCode APIs 做得更好）
+  - Grep 将显示预览，并在完成后清理预览。但在某些情况下，Consult 无法进行清理，因此预览仍然会显示。建议 ***打开*** `Workbench > Editor: Enable Preview` 来规避此问题。
+  - 预览可能会被 quick pick UI 遮挡。
+  - 预览的文件可能会出现在 `recentf` 中。
+  - 尽管 grep 的结果已经根据文件来分组，但显示在 quick pick 上的时候还是乱序的。
 - 尚未实现 Quick pick 中匹配模式的高亮显示。目前 VSCode API 还没法很好支持。

@@ -55,5 +55,9 @@ Note that `<TAB>` is used to enter a directory, when you're doing `consult.showF
 
 - Only tested on Mac and Linux.
 - Not tested with large projects. So finding files and grepping will encounter performance issues.
-- Grep will show previews, and cleanup the preview editors once it's done. But under some circumstances, Consult won't be able to do the cleanup, and thus the preview editors remain shown. Furthermore, the preview may show up in `recentf`.
+- Issues with grep (currently have no idea how to make it better with available VSCode APIs):
+  - Grep will show previews, and cleanup the preview editors once it's done. But under some circumstances, Consult won't be able to do the cleanup, and thus the preview editors remain shown. Turning ***ON*** `Workbench > Editor: Enable Preview` is recommended to avoid this problem.
+  - The preview may be shielded by the quick pick UI.
+  - Previewed files may show up in `recentf`.
+  - Although the grep results are grouped by file, but when displayed with quick pick, they're still messed up.
 - Quick pick highlighting on matched patterns are not implemented. There isn't a good way to do it with VSCode API for now.
