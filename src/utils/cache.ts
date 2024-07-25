@@ -143,7 +143,7 @@ class ProjectCache {
         for (let [projectName, projectPath] of this.projectsLRU.entries()) {
             if (!fs.existsSync(projectPath) || !PathLib.isAbsolute(projectPath)) {
                 window.showInformationMessage(`remove invalid project ${projectName} (${projectPath})`);
-                this.projectsLRU.delete(projectPath);
+                this.projectsLRU.delete(projectName);
             }
         }
     }
@@ -151,7 +151,7 @@ class ProjectCache {
     revalidateProjectFiles() {
         for (let [projectName, cache] of this.projectFileWeightedCache) {
             if (!this.projectsLRU.has(projectName)) {
-                window.showInformationMessage(`remove non-existent project ${projectName}`);
+                // window.showInformationMessage(`remove non-existent project ${projectName}`);
                 this.projectFileWeightedCache.delete(projectName);
                 continue;
             }
