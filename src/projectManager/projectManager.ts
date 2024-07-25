@@ -174,9 +174,7 @@ export function onAcceptOpenProjectFile(this: ProjectManager) {
 export async function genProjectFileItemsFromProjectItem(this: ProjectManager, projectItem: ProjectItem) {
     this.quickPick!.title = PathLib.basename(projectItem.label);
 
-    return await projectItem.getFileItems(
-        this.buildExcludeGlobPattern(projectItem.absProjectRoot), this.filepathToProjectFileItem
-    ) || [];
+    return await projectItem.getFileItems(this.filepathToProjectFileItem) || [];
 }
 
 

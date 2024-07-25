@@ -2,7 +2,7 @@
 	"name": "consult",
 	"displayName": "Consult",
 	"description": "",
-	"version": "0.0.7",
+	"version": "0.0.8",
 	"publisher": "hyesun",
 	"repository": {
 		"url": "https://github.com/sunhs/consult.code"
@@ -213,6 +213,7 @@
 	},
 	"dependencies": {
 		"fast-glob": "^3.3.2",
+		"ignore": "^5.3.1",
 		"micromatch": "^4.0.4",
 		"ts-md5": "^1.2.9"
 	}

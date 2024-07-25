@@ -1,8 +1,11 @@
 import * as fg from "fast-glob";
+import * as fs from "fs";
+import ignore from "ignore";
 import * as OS from "os";
 import * as PathLib from "path";
 import { QuickPickItem, Uri, window, workspace } from "vscode";
 import { projectCache } from "../utils/cache";
+import { getConfigFilterGlobPatterns, getConfigProjectDotIgnoreFiles } from "../utils/conf";
 import { FixSizedMap } from "../utils/datastructs";
 
 
@@ -19,22 +22,38 @@ export class ProjectItem implements QuickPickItem {
         this.absProjectRoot = projectRoot;
     }
 
-    async getFileItems(excludeGlobPattern: string, filepathToProjectFileItem: FixSizedMap<string, ProjectFileItem>) {
-        if (!this.absProjectRoot.endsWith("/")) {
-            this.absProjectRoot = this.absProjectRoot + "/";
-        }
-        let includeGlobPattern = `${this.absProjectRoot}**`;
+    async getFileItems(filepathToProjectFileItem: FixSizedMap<string, ProjectFileItem>) {
+        let ig = ignore();
+        getConfigProjectDotIgnoreFiles().forEach(
+            (ignoreFile) => {
+                let ignoreFilePath = PathLib.join(this.absProjectRoot, ignoreFile);
+                if (fs.existsSync(ignoreFilePath)) {
+                    ig.add(fs.readFileSync(ignoreFilePath, "utf-8"));
+                }
+            }
+        );
 
-        return await fg(includeGlobPattern, { ignore: [excludeGlobPattern], onlyFiles: true, dot: true }).then(
-            (filepaths) => {
-                if (filepaths.length === 0) {
+        return await fg("**", {
+            cwd: this.absProjectRoot,
+            ignore: getConfigFilterGlobPatterns(),
+            onlyFiles: true,
+            dot: true
+        }).then(
+            (relFilePaths) => {
+                if (relFilePaths.length === 0) {
                     return undefined;
                 }
 
                 let fileItems: ProjectFileItem[] = [];
 
-                filepaths.forEach(
-                    (filePath) => {
+                relFilePaths.forEach(
+                    (relFilePath) => {
+                        if (ig.ignores(relFilePath)) {
+                            return;
+                        }
+
+                        let filePath = PathLib.join(this.absProjectRoot, relFilePath);
+
                         let document = window.activeTextEditor?.document;
                         if (document && document.uri.path === filePath) {
                             return;
