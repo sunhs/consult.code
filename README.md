@@ -31,6 +31,19 @@ When you add a folder to the workspace or open a new document, Consult will try 
 
 Note that `<TAB>` is used to enter a directory, when you're doing `consult.showFileBrowser`, `consult.addProject` or `consult.grepDir`.
 
+### Project Discovery
+![Demo](demo/project_discover.gif)
+
+### Open/Remove Project
+![Demo](demo/open_project.gif)
+![Demo](demo/delete_project.gif)
+
+### Grep
+![Demo](demo/grep.gif)
+
+### FileBrowser and Regex Search
+![Demo](demo/filebrowser_regex_search.gif)
+
 ## Configuration
 
 - `consult.filterGlobPatterns` A list of glob patterns to filter out search results.

@@ -30,6 +30,19 @@
 
 注意，当你在 `consult.showFileBrowser`、`consult.addProject` 或 `consult.grepDir` 时，使用 `<TAB>` 进入目录。
 
+### Project 发现
+![Demo](demo/project_discover.gif)
+
+### 打开/移除 Project
+![Demo](demo/open_project.gif)
+![Demo](demo/delete_project.gif)
+
+### Grep
+![Demo](demo/grep.gif)
+
+### 文件浏览器和 Regex 搜索
+![Demo](demo/filebrowser_regex_search.gif)
+
 ## 配置
 
 - `consult.filterGlobPatterns` 用于过滤搜索结果的 glob pattern。
