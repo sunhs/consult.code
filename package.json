@@ -2,7 +2,7 @@
 	"name": "consult",
 	"displayName": "Consult",
 	"description": "",
-	"version": "0.0.8",
+	"version": "0.0.9",
 	"publisher": "hyesun",
 	"repository": {
 		"url": "https://github.com/sunhs/consult.code"
@@ -204,7 +204,7 @@
 		"@types/micromatch": "^4.0.1",
 		"@types/mocha": "^8.2.2",
 		"@types/node": "14.x",
-		"@types/vscode": "^1.57.0",
+		"@types/vscode": "^1.91.0",
 		"@typescript-eslint/eslint-plugin": "^4.26.0",
 		"@typescript-eslint/parser": "^4.26.0",
 		"eslint": "^7.27.0",

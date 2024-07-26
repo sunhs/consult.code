@@ -37,13 +37,17 @@ export async function genGrepItemsFromProject(this: Grep, query: string, project
 
 
 export async function genGrepItemsFromDir(this: Grep, query: string, dir: string) {
+    this.quickPick!.title = dir;
+
+    let dotIgnoreFilePaths = [];
     let projectRoot = await projectManager.tryResolveProjectRoot(dir);
     if (projectRoot !== undefined) {
-        return await genGrepItemsFromProject.call(this, query, new ProjectItem(projectRoot));
+        for (let dotIgnoreFile of getConfigProjectDotIgnoreFiles()) {
+            dotIgnoreFilePaths.push(PathLib.join(projectRoot, dotIgnoreFile));
+        }
     }
 
-    this.quickPick!.title = dir;
-    return await genGrepItems.call(this, query, dir);
+    return await genGrepItems.call(this, query, dir, dotIgnoreFilePaths);
 }
 
 
